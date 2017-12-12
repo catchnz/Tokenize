@@ -19,16 +19,16 @@
  * @version     2.6
  */
 
- ;(function (root, factory) {
+;(function (root, factory) {
 
-     // AMD. Register as an anonymous module depending on jQuery.
-     if (typeof define === 'function' && define.amd) define(['jquery'], factory);
+    // AMD. Register as an anonymous module depending on jQuery.
+    if (typeof define === 'function' && define.amd) define(['jquery'], factory);
 
-     // Node, CommonJS-like
-     else if (typeof exports === 'object') module.exports = factory(require('jquery'));
+    // Node, CommonJS-like
+    else if (typeof exports === 'object') module.exports = factory(require('jquery'));
 
-     // Browser globals (root is window)
-     else root.returnExports = factory(root.jQuery);
+    // Browser globals (root is window)
+    else root.returnExports = factory(root.jQuery);
 
 }(this, function ($, undefined) {
 
@@ -113,6 +113,13 @@
             this.tokensContainer = $('<ul />')
                 .addClass('TokensContainer');
 
+            // handles option to put tokens in a container outside of the form
+            if (this.options.altTokensContainer && $(this.options.altTokensContainer).length) {
+                this.altTokensContainer = $(this.options.altTokensContainer);
+            } else {
+                this.altTokensContainer = false;
+            }
+
             if(this.options.autosize){
                 this.tokensContainer
                     .addClass('Autosize');
@@ -126,7 +133,7 @@
                 .appendTo(this.searchToken);
 
             if(this.options.searchMaxLength > 0){
-                this.searchInput.attr('maxlength', this.options.searchMaxLength)
+                this.searchInput.attr('maxlength', this.options.searchMaxLength);
             }
 
             if(this.select.prop('disabled')){
@@ -267,7 +274,6 @@
          * Display the dropdown
          */
         dropdownShow: function(){
-
             this.dropdown.show();
             this.options.onDropdownShow(this);
 
@@ -639,7 +645,7 @@
 
             if($('option[value="' + value + '"]', this.select).length){
                 if(!first && ($('option[value="' + value + '"]', this.select).attr('selected') === true ||
-                    $('option[value="' + value + '"]', this.select).prop('selected') === true)){
+                        $('option[value="' + value + '"]', this.select).prop('selected') === true)){
                     this.options.onDuplicateToken(value, text, this);
                 }
                 $('option[value="' + value + '"]', this.select).attr('selected', true).prop('selected', true);
@@ -660,14 +666,20 @@
                 return this;
             }
 
-            $('<li />')
+            var $token = $('<li />')
                 .addClass('Token')
                 .attr('data-value', value)
                 .append('<span>' + text + '</span>')
-                .prepend(close_btn)
-                .insertBefore(this.searchToken);
+                .prepend(close_btn);
 
-            if(!first){
+            if (this.altTokensContainer) {
+                $token.addClass('Token--' + this.select.attr('id'));
+                this.altTokensContainer.append($token);
+            } else {
+                $token.insertBefore(this.searchToken);
+            }
+
+            if (!first) {
                 this.options.onAddToken(value, text, this);
             }
 
@@ -696,6 +708,7 @@
             }
 
             $('li.Token[data-value="' + value + '"]', this.tokensContainer).remove();
+            $('li.Token[data-value="' + value + '"]', this.altTokensContainer).remove();
 
             this.options.onRemoveToken(value, this);
             this.resizeSearchInput();
@@ -864,6 +877,7 @@
         valueField: 'value',
         textField: 'text',
         htmlField: 'html',
+        altTokensContainer: false,
 
         onAddToken: function(value, text, e){},
         onRemoveToken: function(value, e){},
