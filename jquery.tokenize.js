@@ -101,6 +101,7 @@
 
             this.container = $('<div />')
                 .attr('class', this.select.attr('class'))
+                .attr('data-allow-default', this.select.attr('data-allow-default'))
                 .addClass('Tokenize');
 
             if(this.options.maxElements == 1){
