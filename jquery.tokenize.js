@@ -358,7 +358,7 @@
 
             this.dropdownReset();
             this.dropdown.hide();
-
+            this.dropdown.trigger('tokenize:close');
         },
 
         /**
